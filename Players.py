@@ -24,9 +24,9 @@ class Player:
         print('new id = ' + str(self.uid))
         # reponse = views.create_player()
         print(infos_new_player)
-        self.lastname = infos_new_player[0]
-        self.firstname = infos_new_player[1]
-        self.birthdate = infos_new_player[2]
+        self.lastname = infos_new_player[0].lower()
+        self.firstname = infos_new_player[1].lower()
+        self.birthdate = infos_new_player[2].lower()
         models.insert_new_player(self)
         # back to player menu
         views.menu_joueurs()

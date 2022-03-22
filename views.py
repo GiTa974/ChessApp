@@ -71,7 +71,7 @@ def select_players(number_of_players):
     while number_of_selected_players < number_of_players :
         indice = 0
         for player in all_players :
-            print(str(indice) + ' - ' + player['LastName'] + ' ' + player['FirstName'] + ' ne(e) le : ' + player['BirthDate'])
+            print(str(indice) + ' - ' + player['LastName'].title() + ' ' + player['FirstName'].title() + ' ne(e) le : ' + player['BirthDate'])
             indice += 1
         print('Selectionner le joueur competiteur : (restant ' + str(number_of_players - number_of_selected_players) + '/' + str(number_of_players) + ')')
         try :
@@ -140,7 +140,7 @@ def print_list_of_players(list_players):
     """
     i = 0
     for player in list_players:
-        print(str(i) + ' - ' + player['LastName'] + ', ' + player['FirstName'] + ' ne(e) le ' + player['BirthDate'])
+        print(str(i) + ' - ' + player['LastName'].title() + ', ' + player['FirstName'].title() + ' ne(e) le ' + player['BirthDate'])
         i+=1
 
 # GENERIQUES
