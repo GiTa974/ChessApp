@@ -45,8 +45,8 @@ def get_last_record_id_player():
 
 def insert_tournament(tournament):
     """ """
-    print("players : " + str(tournament.Players))
-    print("model tournament insertion : " + str(tournament.roundsUIDs))
+    # print("players : " + str(tournament.Players))
+    # print("model tournament insertion : " + str(tournament.roundsUIDs))
     tableTournaments = db.table("tournaments")
     # try car la table est suceptible de ne pas exister
     try:
@@ -58,9 +58,11 @@ def insert_tournament(tournament):
         {
             "uid": TournamentUID,
             "CreationDate": str(tournament.creationDate),
-            "RoundsUID": tournament.roundsUIDs,
+            "EndDate": str(tournament.endDate),
+            "Status": tournament.status
         }
     )  # voir la serialisation
+    # "RoundsUID": tournament.roundsUIDs,
     return TournamentUID
 
 
@@ -78,13 +80,13 @@ def insertRound(round):
         {
             "uid": roundUID,
             "CreationDate": str(round.creationDate),
-            "MatchsUID": round.matchsUIDs,
         }
+    # "MatchsUID": round.matchsUIDs,
     )  # voir la serialisation
     return roundUID
 
 
-def insertMatch(match):
+def insertMatch(match, roundUID):
     """ """
     print(match)
     tableMatchs = db.table("matchs")
@@ -97,6 +99,7 @@ def insertMatch(match):
     tableMatchs.insert(
         {
             "uid": matchUID,
+            "roundUID": roundUID,
             "CreationDate": str(match.creationDate),
             "Player1": match.player1,
             "Player1 result": "",

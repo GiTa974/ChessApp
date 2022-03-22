@@ -40,7 +40,14 @@ def new_tournament_get_number_of_players():
     """
     """
     print('CREATION DU TOURNOI')
-    number_of_players = input('Entrez le nombre de joueurs : ')
+    Continuer = True
+    while Continuer:
+        number_of_players = input('Entrez le nombre de joueurs : ')
+        try:
+            number_of_player = int(number_of_players)
+            Continuer = False
+        except:
+            print('Je n ai pas compris votre reponse, donnez le nombre de joueur (nombre en chiffre)')
     return int(number_of_players)
 
 def affect_players(number_of_players):

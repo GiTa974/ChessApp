@@ -11,12 +11,11 @@ class Tournament:
 
     def __init__(self):
         """ """
-        self.uid = ""
         self.number_of_players = 0
         # self.Players = []
         self.date_stamp = str(datetime.datetime.now())
         self.creationDate = str(datetime.datetime.now())
-        self.end_date = ""
+        self.endDate = ""
         self.status = "en cours"
         # self.number_of_players = 0
         self.number_of_players = self.set_number_of_players()
@@ -25,9 +24,9 @@ class Tournament:
         self.Players = self.select_players()
         print("les joueurs selected : " + str(self.Players))
         self.rawRounds = []
+        self.uid = self.push_tournament_into_DB()
         self.create_rounds()
-        self.roundsUIDs = []
-        self.push_tournament_into_DB()
+        # self.roundsUIDs = []
         # print(self.roundUIDs)
 
     def set_number_of_players(self):
@@ -50,26 +49,31 @@ class Tournament:
         self.round = Round()
         print("creation des rounds " + str(self.Players))
         first_matchs = self.round.create_round(self.Players, "score")
+        print("tournament : create rounds : first_matchs : " + str(first_matchs))
         self.round.matchs = first_matchs
-        print("create rounds : players list : ")
-        print(self.Players)
+        self.round.createMatchs()
+        print("self.round.matchs : " + str(self.round.matchs))
+        # first_matchs
+        # print("create rounds : players list : ")
+        # print(self.Players)
         # return first_matchs
-        print("vars round : " + str(vars(self.round)))
-        print("test dic : " + str(self.round.matchs))
-        self.rawRounds.append(self.round)
+        # print("vars round : " + str(vars(self.round)))
+        # print("test dic : " + str(self.round.matchs))
+        # self.rawRounds.append(self.round)
         # return self.rounds.create_next_rounds(first_matchs, self.Players)
 
     def push_tournament_into_DB(self):
         """ """
-        print("nombre de rounds : " + str(len(self.rawRounds[0].matchs)))
+        # print("nombre de rounds : " + str(len(self.rawRounds[0].matchs)))
+        print("create tournament in DB ")
         # roundLocalId = 0
-        for round in self.rawRounds:
-            print("round " + str(round))
-            roundIUD = self.round.pushRoundIntoDB()
-            self.roundsUIDs.append(roundIUD)
-        # print(self.rawRounds.matchsUIDs)
-        # roundIUD = self.round.pushRoundIntoDB(self.rawRounds, self.rawRounds)
-        models.insert_tournament(self)
+        # for round in self.rawRounds:
+        #     print("round " + str(round))
+        #     roundIUD = self.round.pushRoundIntoDB()
+        #     self.roundsUIDs.append(roundIUD)
+        # # print(self.rawRounds.matchsUIDs)
+        # # roundIUD = self.round.pushRoundIntoDB(self.rawRounds, self.rawRounds)
+        return models.insert_tournament(self)
 
     def launchTournament(self):
         """
@@ -135,7 +139,9 @@ class Round:
                 break
             i += 1
             # print(len(list_of_players_to_fight)/2)
-        print(list_of_matchs)
+        print("rounds : create round : list_of_matchs" + str(list_of_matchs))
+        self.uid = self.pushRoundIntoDB()
+        # self.createMatchs()
         return list_of_matchs
 
     def create_next_rounds(self, list_of_matchs, list_of_players):
@@ -172,8 +178,33 @@ class Round:
         """ """
         print("push rounds into db" + str(self))
         # theMatch = Match()
-        print("round : " + str(self.matchsUIDs))
+        # print("round : " + str(self.matchsUIDs))
+        roundUID = models.insertRound(self)
+        # theMatch = Match()
+        # for match in self.matchs:
+        #     print("match : " + str(match))
+        #     if match[0] != "" and match[1] != "":
+        #         theMatch.player1 = match[0]["uid"]
+        #         theMatch.player2 = match[1]["uid"]
+        #     elif match[0] == "" and match[1] != "":
+        #         theMatch.player2 = match[1]["uid"]
+        #         Match.player1 = 0
+        #     else:
+        #         theMatch.player1 = match[0]["uid"]
+        #         theMatch.player2 = 0
+        #     print("match into DB")
+        #     theMatch.UID = theMatch.pushMatchIntoDB()
+        #     self.matchsUIDs.append(theMatch.UID)  # boucle infinie !!!
+        # return True
+        # roundsUIDs = []
+        return roundUID
+    
+    def createMatchs(self):
+        """"""
+        print("match creation !!!")
         theMatch = Match()
+        roundUID = self.uid
+        print("match du round : " + str(self.matchs))
         for match in self.matchs:
             print("match : " + str(match))
             if match[0] != "" and match[1] != "":
@@ -186,13 +217,7 @@ class Round:
                 theMatch.player1 = match[0]["uid"]
                 theMatch.player2 = 0
             print("match into DB")
-            theMatch.UID = theMatch.pushMatchIntoDB()
-            self.matchsUIDs.append(theMatch.UID)  # boucle infinie !!!
-        # return True
-        # roundsUIDs = []
-        roundUID = models.insertRound(self)
-        return roundUID
-
+            theMatch.UID = theMatch.pushMatchIntoDB(roundUID)
 
 class Match:
     """ """
@@ -211,11 +236,11 @@ class Match:
         self.winner = player
         # views.update_winner
 
-    def pushMatchIntoDB(self):
+    def pushMatchIntoDB(self, roundUID):
         """ """
         print("push match into DB")
         print("players playing : ", self.player1, self.player2)
-        return models.insertMatch(self)
+        return models.insertMatch(self, roundUID)
 
 
 # tournament = Tournament()
