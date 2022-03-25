@@ -2,6 +2,7 @@ import views
 import models
 import datetime
 import itertools
+import controllers
 
 
 class Tournament:
@@ -11,23 +12,22 @@ class Tournament:
 
     def __init__(self):
         """ """
+        self.uid = 0
         self.number_of_players = 0
-        # self.Players = []
+        self.Players = [] # TODO supp de la
         self.date_stamp = str(datetime.datetime.now())
         self.creationDate = str(datetime.datetime.now())
         self.endDate = ""
         self.status = "en cours"
-        # self.number_of_players = 0
-        self.number_of_players = self.set_number_of_players()
-        # print(type(self.number_of_players))
-        # self.Players = views.select_players(self.number_of_players)
-        self.Players = self.select_players()
-        print("les joueurs selected : " + str(self.Players))
-        self.rawRounds = []
-        self.uid = self.push_tournament_into_DB()
-        self.create_rounds()
-        # self.roundsUIDs = []
-        # print(self.roundUIDs)
+        self.number_of_players = 0
+        self.rounds = [] # TODO supp de la
+        ## self.number_of_players = self.set_number_of_players() # TODO to controllers
+        ## self.Players = self.select_players() # TODO to controllers
+        ## print("les joueurs selected : " + str(self.Players)) # TODO to controllers
+        # self.rawRounds = []
+        ## self.uid = self.push_tournament_into_DB() # TODO to controllers
+        ## self.create_rounds() # TODO to controllers
+        ## controllers.launchTournament() # TODO to controllers
 
     def set_number_of_players(self):
         """ """
@@ -46,36 +46,29 @@ class Tournament:
         a partir du moment ou nous avons le nombre de joueur on peut determner
         le nombre de rounds et ainsi se faire recontrer les joueurs
         """
-        self.round = Round()
+        tournamentUID = self.uid
+        firstRound = Round(tournamentUID)
+        self.rounds.append(firstRound)
         print("creation des rounds " + str(self.Players))
-        first_matchs = self.round.create_round(self.Players, "score")
-        print("tournament : create rounds : first_matchs : " + str(first_matchs))
-        self.round.matchs = first_matchs
-        self.round.createMatchs()
-        print("self.round.matchs : " + str(self.round.matchs))
-        # first_matchs
-        # print("create rounds : players list : ")
-        # print(self.Players)
-        # return first_matchs
-        # print("vars round : " + str(vars(self.round)))
-        # print("test dic : " + str(self.round.matchs))
-        # self.rawRounds.append(self.round)
-        # return self.rounds.create_next_rounds(first_matchs, self.Players)
+        first_matchs = firstRound.create_round(self.Players, "score")
+        print('create_rounds : first_matchs' + str(first_matchs))
+        # firstRound.matchs.append(first_matchs)
+        # print("tournament : create rounds : first_matchs : " + str(first_matchs))
+        # self.round.matchs = first_matchs
+
+        # firstRound.matchs.append(firstRound.createMatchs())
+        firstRound.matchs = first_matchs
+        firstRound.createMatchs() # TODO move to controllers
+        print('create_rounds : firstRound.matchs : ' + str(firstRound.matchs))
+
+        # print("self.round.matchs : " + str(self.round.matchs))
 
     def push_tournament_into_DB(self):
         """ """
-        # print("nombre de rounds : " + str(len(self.rawRounds[0].matchs)))
         print("create tournament in DB ")
-        # roundLocalId = 0
-        # for round in self.rawRounds:
-        #     print("round " + str(round))
-        #     roundIUD = self.round.pushRoundIntoDB()
-        #     self.roundsUIDs.append(roundIUD)
-        # # print(self.rawRounds.matchsUIDs)
-        # # roundIUD = self.round.pushRoundIntoDB(self.rawRounds, self.rawRounds)
         return models.insert_tournament(self)
 
-    def launchTournament(self):
+    def launchTournament(self): # mettre dans controller
         """
         Lancement du tournoi
         """
@@ -90,13 +83,13 @@ class Tournament:
 class Round:
     """ """
 
-    def __init__(self):
+    def __init__(self, tournamentUID):
         """ """
         self.uid = ""
-        self.matchs = []
-        self.matchsUIDs = []
-        self.tournamentUID = 0
-        self.uid = []
+        self.tournamentUID = tournamentUID
+        self.matchs = [] # TODO supp de la
+        self.matchsUIDs = [] # TODO supp de la
+        self.uid = [] # TODO supp de la
         self.creationDate = str(datetime.datetime.now())
         print("Rounds creation_")
 
@@ -107,15 +100,12 @@ class Round:
         list_of_players_to_fight = sorted(
             list_of_players_to_fight, key=lambda i: i[arrangement]
         )
-        # print(list_of_players)
-        # print(list_of_players_to_fight)
         number_of_players = len(list_of_players_to_fight)
         middle_index = int((len(list_of_players_to_fight) / 2))
         # TODO order list of players
         list_of_matchs = []
         i = 0
         while True:
-            # print(list_of_players_to_fight)
             print("middle " + str(middle_index) + " iteration : " + str(i))
             if number_of_players > 2:
                 list_of_matchs.append(
@@ -138,10 +128,8 @@ class Round:
                 list_of_matchs.append([list_of_players_to_fight[0], ""])
                 break
             i += 1
-            # print(len(list_of_players_to_fight)/2)
         print("rounds : create round : list_of_matchs" + str(list_of_matchs))
         self.uid = self.pushRoundIntoDB()
-        # self.createMatchs()
         return list_of_matchs
 
     def create_next_rounds(self, list_of_matchs, list_of_players):
@@ -149,10 +137,7 @@ class Round:
         print("next matchs creation")
         rounds = []
         first_round = list_of_matchs[0]
-        # print('list of matchs : ')
-        # print(list_of_matchs)
-        # print('list of players : ')
-        # print(list_of_players)
+        # print('lis_of_players)
         if (len(list_of_players) % 2) != 0:
             list_of_players.append("")
         combinaisons = itertools.combinations(list_of_players, 2)
@@ -177,26 +162,7 @@ class Round:
     def pushRoundIntoDB(self):
         """ """
         print("push rounds into db" + str(self))
-        # theMatch = Match()
-        # print("round : " + str(self.matchsUIDs))
         roundUID = models.insertRound(self)
-        # theMatch = Match()
-        # for match in self.matchs:
-        #     print("match : " + str(match))
-        #     if match[0] != "" and match[1] != "":
-        #         theMatch.player1 = match[0]["uid"]
-        #         theMatch.player2 = match[1]["uid"]
-        #     elif match[0] == "" and match[1] != "":
-        #         theMatch.player2 = match[1]["uid"]
-        #         Match.player1 = 0
-        #     else:
-        #         theMatch.player1 = match[0]["uid"]
-        #         theMatch.player2 = 0
-        #     print("match into DB")
-        #     theMatch.UID = theMatch.pushMatchIntoDB()
-        #     self.matchsUIDs.append(theMatch.UID)  # boucle infinie !!!
-        # return True
-        # roundsUIDs = []
         return roundUID
     
     def createMatchs(self):
@@ -228,8 +194,8 @@ class Match:
         self.player2 = "player2"
         self.winner = ""
         self.creationDate = str(datetime.datetime.now())
+        self.roundUID = 0
         self.UID = 0
-        # self.uid = self.pushIntoDB(self)
 
     def set_winner(self, player):
         """ """
@@ -242,6 +208,3 @@ class Match:
         print("players playing : ", self.player1, self.player2)
         return models.insertMatch(self, roundUID)
 
-
-# tournament = Tournament()
-# tournament.set_number_of_players()

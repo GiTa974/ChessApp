@@ -26,7 +26,7 @@ def menu_principal():
     elif reponse["choix"] == "2":
         menu_players()
     elif reponse["choix"] == "3":
-        views.quit()
+        quit()
 
     # print(reponse)
 
@@ -53,12 +53,18 @@ def menu_tournois():
     elif reponse["choix"] == "1":
         get_tournaments_by_date_desc()
     elif reponse["choix"] == "2":
-        Tournament.Tournament()
+        currentTournament = Tournament.Tournament()
+        currentTournament.number_of_players = currentTournament.set_number_of_players()
+        currentTournament.Players = currentTournament.select_players()
+        currentTournament.uid = currentTournament.push_tournament_into_DB()
+        models.pushTournamentPlayersIntoDB(currentTournament.uid, currentTournament.Players)
+        currentTournament.create_rounds()
+        # launchTournament()
     elif reponse["choix"] == "3":
         # views.back()
         menu_principal()
     elif reponse["choix"] == "4":
-        views.quit()
+        quit()
 
 
 def get_last_tournament():
@@ -77,15 +83,6 @@ def create_tournament():
 def get_tournaments_by_date_desc():
     """ """
     print("get tournaments by date desc()")
-
-
-# class Tournament:
-#     """
-#     """
-#     def __init__(self):
-#         """
-#         """
-#         self
 
 # MENU PLAYERS
 def menu_players():
@@ -112,7 +109,7 @@ def menu_players():
     elif reponse["choix"] == "2":
         menu_principal()
     elif reponse["choix"] == "3":
-        views.quit()
+        quit()
 
 
 def get_players_by_date_desc():
@@ -129,5 +126,14 @@ def create_player():
     reponse = views.create_player()
     print(reponse)
 
+def quit():
+    """ """
+    models.DBClose()
+
+def launchTournament():
+    """
+    appelle le tournois actuel
+    """
+    
 
 # menu_principal()
